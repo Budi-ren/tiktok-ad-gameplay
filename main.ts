@@ -3,10 +3,12 @@
 //
 // The entry is the video itself: an original vertical TikTok ad for make.fun,
 // made by the agent in its recorded session, posted publicly on TikTok from
-// the public account @Approximatelly6. This program's only job is to hand in
-// the video's address: it reads VIDEO.json from the repository root, checks
-// it is a well-formed TikTok video address, and copies it to /output/VIDEO.json
-// where the gate reads it.
+// the public account @Approximatelly6. TikTok renamed that account mid-upload
+// to @approximatelly888, so both handles name the same account and either
+// form of the video's address is accepted below. This program's only job is
+// to hand in the video's address: it reads VIDEO.json from the repository
+// root, checks it is a well-formed TikTok video address, and copies it to
+// /output/VIDEO.json where the gate reads it.
 //
 // The video is NOT in this repository (ad.mp4 stays with the agent session
 // and is handed to the person to post as-is, unedited). The press pack files
@@ -25,7 +27,9 @@ import { join } from 'node:path';
 
 const BOT_DIR = process.env.MAKEFUN_BOT_DIR ?? '/bot';
 const OUTPUT_DIR = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
-const HANDLE = '@Approximatelly6';
+// The account's handle at posting time, and its handle after TikTok renamed
+// it mid-upload: one account, two names, both accepted.
+const HANDLES = ['@Approximatelly6', '@approximatelly888'];
 
 // A real TikTok video address: https://www.tiktok.com/@<handle>/video/<digits>.
 // The placeholder this repository ships with (video id all zeros) is refused
@@ -55,8 +59,8 @@ const match = VIDEO_URL.exec(url);
 if (!match) {
   fail(`url ${JSON.stringify(url)} is not a TikTok video address (https://www.tiktok.com/@<handle>/video/<id>)`);
 }
-if (`@${match[1]}` !== HANDLE) {
-  fail(`url names @${match[1]} but this entry posts from ${HANDLE}`);
+if (!HANDLES.includes(`@${match[1]}`)) {
+  fail(`url names @${match[1]} but this entry posts from ${HANDLES.join(' or ')}`);
 }
 if (/^0+$/.test(match[2])) {
   fail('url still holds the placeholder video id; replace it with the posted video\'s address');
